@@ -1,0 +1,156 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider     = "prisma-client-js"
+  moduleFormat = "esm"
+}
+
+datasource db {
+  provider  = "postgresql"
+}
+
+model UserToken {
+  id        Int         @id @default(autoincrement())
+  userid    Int
+  user      User        @relation(fields: [userid], references: [id])
+  tokenhash String      @unique
+  created   DateTime    @default(now())
+  expires   DateTime    @default(dbgenerated("NOW() + interval '7 days'"))
+}
+
+model User {
+  id            Int    @id @default(autoincrement())
+  name          String @unique
+  email         String @unique
+  password_hash String
+  register_ip   String
+  last_login_ip String
+  
+  is_admin      Boolean
+  can_upload    Boolean
+
+  apps          App[]
+  appVersions   AppVersion[]
+  resources     AppResource[]
+  reviews            Review[]
+
+  tokens        UserToken[]
+}
+
+enum ModeratedObjectType {
+  APP
+  APP_VERSION
+  RESOURCE
+}
+
+enum ModeratedObjectStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model ModeratedObject {
+  id           Int                   @id @default(autoincrement())
+  objectType   ModeratedObjectType   @default(APP)
+  appId        Int?                  @unique
+  app          App?                  @relation(fields: [appId], references: [id])
+  appVersionId Int?                  @unique
+  appVersion   AppVersion?           @relation(fields: [appVersionId], references: [id])
+  resourceId   Int?                  @unique
+  resource     AppResource?          @relation(fields: [resourceId], references: [id])
+  status       ModeratedObjectStatus @default(PENDING)
+  comment      String?
+}
+
+model App {
+  id                 Int              @id @default(autoincrement())
+  name               String
+  author             String?
+  packageId          String           @unique
+  description        String?
+  uploaderId         Int
+  uploader           User             @relation(fields: [uploaderId], references: [id])
+  versions           AppVersion[]
+  moderatedObjectId  Int              @unique
+  moderatedObject    ModeratedObject?
+  categoryId         String?          
+  category           Category?        @relation(fields: [categoryId], references: [cat_id])
+  resources          AppResource[]
+  reviews            Review[]
+}
+
+model AppVersion {
+  id          Int      @id @default(autoincrement())
+  versionCode Int
+  versionName String
+  minSdk      Int?      
+  abis        String[]
+  downloadUrl String
+  createdAt   DateTime @default(now())
+  appId       Int
+  app         App      @relation(fields: [appId], references: [id])
+  uploaderId  Int
+  uploader    User     @relation(fields: [uploaderId], references: [id])
+  sha256      String   @unique
+  moderatedObjectId  Int  @unique
+  moderatedObject    ModeratedObject? 
+}
+
+enum AppResourceType {
+  ICON
+  SCREENSHOT
+}
+
+model AppResource {
+  id Int @id @default(autoincrement())
+  type AppResourceType
+  downloadUrl String
+  createdAt   DateTime @default(now())
+  appId       Int
+  app         App      @relation(fields: [appId], references: [id])
+  uploaderId  Int
+  uploader    User     @relation(fields: [uploaderId], references: [id])
+  moderatedObjectId  Int  @unique
+  moderatedObject    ModeratedObject?
+}
+
+enum CategoryType {
+  APP
+  GAME
+}
+
+model Category {
+  id     Int          @id @default(autoincrement())
+  cat_id String       @unique
+  name   String
+  type   CategoryType
+  apps   App[]
+}
+
+model Review {
+  id        Int            @id @default(autoincrement())
+  app_id    Int
+  user_id   Int
+  app       App            @relation(fields: [app_id], references: [id])
+  user      User           @relation(fields: [user_id], references: [id])
+  rating    Float
+  comment   String?
+  reports   ReviewReport[] 
+  posted_at DateTime       @default(now())
+}
+
+enum ReportStatus {
+  OPEN
+  CLOSED
+}
+
+model ReviewReport {
+  id         Int          @id @default(autoincrement())
+  review_id  Int
+  review     Review       @relation(fields: [review_id], references: [id])
+  created_at DateTime     @default(now())
+  status     ReportStatus @default(OPEN)
+}
