@@ -21,7 +21,7 @@ import { DeveloperService } from './dev.service';
 import { CloudflareStorageService } from 'src/cf-storage/cf-storage.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
-import { CreateAppDto } from 'src/app/create-app.dto';
+import { CreateAppDto } from 'src/dev/create-app.dto';
 import { createHash } from 'crypto';
 import { extname, join } from 'path';
 import { unlink, writeFile } from 'fs/promises';
@@ -132,7 +132,7 @@ export class DeveloperController {
             console.log(body);
 
             return await this.developerService.processAndSaveApk(file, hash, body.name,
-                body.author, body.description ?? '', body.own_app, body.token);
+                body.author, body.description ?? '', body.own_app, body.token, body.category);
         } catch (error) {
             await unlink(filePath).catch(() => undefined);
             throw error;

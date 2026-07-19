@@ -140,7 +140,7 @@ export class DeveloperService {
 
   async processAndSaveApk(file: Express.Multer.File, sha256: string,
     name: string, author: string, userDescription: string,
-    ownApp: boolean = false, token: string): Promise<any> {
+    ownApp: boolean = false, token: string, category: string = "other"): Promise<any> {
     console.log({ name, author, userDescription, ownApp });
 
     const tokenValidation = await this.authService.validateToken(token);
@@ -224,6 +224,7 @@ export class DeveloperService {
           data: {
             name,
             packageId,
+            categoryId: category,
             author: ownApp ? tokenValidation.user.name : author,
             description: userDescription,
             uploaderId: 1,
