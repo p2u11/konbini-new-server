@@ -24,7 +24,7 @@ export class CategoriesService {
     // }
 
     // return cats.map(category => ({ id: category.cat_id, name: category.name }));
-    return Object.entries(Categories).filter(([id, info])=>(info.type==type)).map(([id, info]) => {
+    return Object.entries(Categories).filter(([id, info])=>((type!==undefined)?(info.type==type):(true))).map(([id, info]) => {
       return {id, name:info.name}
     })
   }
