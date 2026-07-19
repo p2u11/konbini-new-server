@@ -138,6 +138,26 @@ export class DeveloperService {
     return { ok: true, message: `Successfully deleted app version #${appVersionId}.`, status_code: 200 }
   }
 
+  async deleteResource(appId: number, resolvedToken: string) {
+    const validationObject = await this.authService.validateToken(resolvedToken)
+    if (!validationObject)
+      throw new UnauthorizedException("Invalid token")
+
+    const appVersion = await this.prisma.appResource.findUnique({
+      where: {
+        id: appId
+      }
+    });
+
+    if (appVersion?.uploaderId !== validationObject.user.id)
+      throw new ForbiddenException("You don't own this app resource.")
+
+    await this.prisma.moderatedObject.delete({ where: { resourceId: appId } })
+    await this.prisma.appResource.delete({ where: { id: appId } })
+
+    return { ok: true, message: `Successfully deleted app resource #${appId}.`, status_code: 200 }
+  }
+
   async processAndSaveApk(file: Express.Multer.File, sha256: string,
     name: string, author: string, userDescription: string,
     ownApp: boolean = false, token: string, category: string = "other"): Promise<any> {

@@ -96,6 +96,12 @@ export class DeveloperController {
         return await this.developerService.deleteAppVersion(appId, resolvedToken);
     }
 
+    @Get('resource/:id/delete')
+    async deleteResource(@Req() req: any, @Param('id', ParseIntPipe) appId: number, @Query('token') token?: string, @Headers('authorization') authorization?: string) {
+        const resolvedToken = this.getToken(req, undefined, token, authorization);
+        return await this.developerService.deleteResource(appId, resolvedToken);
+    }
+
     @UseInterceptors(FileInterceptor('file', { storage: memoryStorage(), fileFilter: (_req, file, callback) => { callback(null, true); } }))
     @Post('upload')
     async uploadFile(
