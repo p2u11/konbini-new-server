@@ -40,7 +40,8 @@ export class DeveloperService {
       },
       include: {
         versions: true,
-        moderatedObject: true
+        moderatedObject: true,
+        resources: true
       }
     });
 
