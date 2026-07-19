@@ -97,7 +97,6 @@ export class AppService {
         resources: true,
         versions: true,
         reviews: true,
-        category: true
       },
     });
     if (!app) {
@@ -112,7 +111,6 @@ export class AppService {
         resources: true,
         versions: true,
         reviews: true,
-        category: true
       },
     });
     if (!app) {
