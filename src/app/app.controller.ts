@@ -1,4 +1,4 @@
-import { Controller, Get, Param, ParseIntPipe, Query, ParseBoolPipe } from '@nestjs/common';
+import { Controller, Get, Param, ParseIntPipe, Query, ParseBoolPipe, Ip } from '@nestjs/common';
 import {  BadRequestException } from '@nestjs/common';
 import { AppService, App } from './app.service';
 
@@ -80,7 +80,7 @@ export class AppController {
   }
 
   @Get(':version_id/download')
-  async downloadVersion(@Param('version_id', ParseIntPipe) version_id: number) {
-    return await this.appService.downloadApp(version_id)
+  async downloadVersion(@Param('version_id', ParseIntPipe) version_id: number, @Ip() ip: string) {
+    return await this.appService.downloadApp(version_id, ip)
   }
 }

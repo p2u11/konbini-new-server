@@ -79,6 +79,7 @@ model App {
   categoryId         String?          
   resources          AppResource[]
   reviews            Review[]
+  downloads          Download[]
 }
 
 model AppVersion {
@@ -152,4 +153,12 @@ model ReviewReport {
   review     Review       @relation(fields: [review_id], references: [id])
   created_at DateTime     @default(now())
   status     ReportStatus @default(OPEN)
+}
+
+model Download {
+  id     Int      @id @default(autoincrement())
+  appId  Int
+  app    App      @relation(fields: [appId], references: [id])
+  ip     String
+  time   DateTime @default(now())
 }

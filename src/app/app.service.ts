@@ -84,7 +84,7 @@ export class AppService {
       packageName: app.packageId,
       isGame: false,
       categoryCode: app.categoryId ?? "other",
-      categoryLabel: ((app.categoryId??"other") in Categories) ? Categories[app.categoryId??"other"].name : app.categoryId??"other",
+      categoryLabel: ((app.categoryId ?? "other") in Categories) ? Categories[app.categoryId ?? "other"].name : app.categoryId ?? "other",
       rating: app.reviews.map(rev => rev.rating).reduce((acc, num) => acc + num, 0),
       downloads: 0,
       author: app.author
@@ -140,10 +140,16 @@ export class AppService {
     return app.versions
   }
 
-  async downloadApp(version_id: number) {
+  async downloadApp(version_id: number, ip: string) {
     const version = await this.prisma.appVersion.findUnique({ where: { id: version_id } })
     if (!version)
       throw new NotFoundException("Version not found.")
+
+    const oneDayAgo = new Date();
+    oneDayAgo.setDate(oneDayAgo.getDate() - 1);
+
+    if (!await this.prisma.download.findFirst({ where: { ip, time: { gte: oneDayAgo }, appId: version.appId } }))
+      await this.prisma.download.create({ data: { ip, appId: version.appId } })
 
     // todo: DOESN'T REDIRECT !!! but also nobody gaf
     return {
@@ -212,7 +218,7 @@ export class AppService {
       packageName: app.packageId,
       isGame: false,
       categoryCode: app.categoryId ?? "other",
-      categoryLabel: ((app.categoryId??"other") in Categories) ? Categories[app.categoryId??"other"].name : app.categoryId??"other",
+      categoryLabel: ((app.categoryId ?? "other") in Categories) ? Categories[app.categoryId ?? "other"].name : app.categoryId ?? "other",
       rating: app.reviews.map(rev => rev.rating).reduce((acc, num) => acc + num, 0),
       downloads: 0,
       author: app.author
