@@ -35,7 +35,7 @@ model User {
   apps          App[]
   appVersions   AppVersion[]
   resources     AppResource[]
-  reviews            Review[]
+  reviews       Review[]
 
   tokens        UserToken[]
 }
@@ -77,7 +77,6 @@ model App {
   moderatedObjectId  Int              @unique
   moderatedObject    ModeratedObject?
   categoryId         String?          
-  category           Category?        @relation(fields: [categoryId], references: [cat_id])
   resources          AppResource[]
   reviews            Review[]
 }
@@ -105,30 +104,30 @@ enum AppResourceType {
 }
 
 model AppResource {
-  id Int @id @default(autoincrement())
-  type AppResourceType
-  downloadUrl String
-  createdAt   DateTime @default(now())
-  appId       Int
-  app         App      @relation(fields: [appId], references: [id])
-  uploaderId  Int
-  uploader    User     @relation(fields: [uploaderId], references: [id])
-  moderatedObjectId  Int  @unique
+  id                 Int               @id @default(autoincrement())
+  type               AppResourceType
+  downloadUrl        String
+  createdAt          DateTime          @default(now())
+  appId              Int
+  app                App               @relation(fields: [appId], references: [id])
+  uploaderId         Int
+  uploader           User              @relation(fields: [uploaderId], references: [id])
+  moderatedObjectId  Int               @unique
   moderatedObject    ModeratedObject?
 }
 
-enum CategoryType {
-  APP
-  GAME
-}
+//enum CategoryType {
+//  APP
+//  GAME
+//}
 
-model Category {
-  id     Int          @id @default(autoincrement())
-  cat_id String       @unique
-  name   String
-  type   CategoryType
-  apps   App[]
-}
+//model Category {
+//  id     Int          @id @default(autoincrement())
+//  cat_id String       @unique
+//  name   String
+//  type   CategoryType
+//  apps   App[]
+//}
 
 model Review {
   id        Int            @id @default(autoincrement())

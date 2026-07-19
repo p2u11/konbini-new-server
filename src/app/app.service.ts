@@ -2,6 +2,7 @@ import { Injectable, NotFoundException, HttpStatus } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { AuthService } from 'src/auth/auth.service'
 import { CloudflareStorageService } from 'src/cf-storage/cf-storage.service';
+import { Categories } from 'src/categories/categories';
 
 export interface AppShort {
   name: string;
@@ -61,15 +62,7 @@ export class AppService {
           }
         },
         ...(category !== undefined ? {
-          category: {
-            cat_id: category
-          }
-        } : {}),
-
-        ...(is_game !== undefined ? {
-          category: {
-            type: is_game ? "GAME" : "APP"
-          }
+          categoryId: category
         } : {}),
 
         ...(author !== undefined && author !== '' ? { author } : {}),
@@ -77,8 +70,7 @@ export class AppService {
       include: {
         resources: true,
         versions: true,
-        reviews: true,
-        category: true
+        reviews: true
       },
     });
 
@@ -91,8 +83,8 @@ export class AppService {
       api: app.versions.reduce((min, obj) => Math.min(min, obj.minSdk ?? 0), Infinity),
       packageName: app.packageId,
       isGame: false,
-      categoryCode: !!app.category ? app.category.cat_id : "other",
-      categoryLabel: !!app.category ? app.category.name : "Other",
+      categoryCode: app.categoryId ?? "other",
+      categoryLabel: ((app.categoryId??"other") in Categories) ? Categories[app.categoryId??"other"].name : app.categoryId??"other",
       rating: app.reviews.map(rev => rev.rating).reduce((acc, num) => acc + num, 0),
       downloads: 0,
       author: app.author
