@@ -72,6 +72,9 @@ export class AppService {
         versions: true,
         reviews: true
       },
+      orderBy: {
+        downloads: { _count: "desc" }
+      },
     });
 
     return apps.map(app => ({
