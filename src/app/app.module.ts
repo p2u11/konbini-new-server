@@ -10,10 +10,12 @@ import { CategoriesService } from 'src/categories/categories.service';
 import { CloudflareStorageService } from 'src/cf-storage/cf-storage.service';
 import { ConfigService } from '@nestjs/config';
 import { CategoriesController } from 'src/categories/categories.controller';
+import { DeveloperController } from 'src/dev/dev.controller';
+import { DeveloperService } from 'src/dev/dev.service';
 
 @Module({
   imports: [],
-  controllers: [AppController, AuthController, AdminController, CategoriesController],
-  providers: [AppService, AuthService, PrismaService, AdminService, CategoriesService, CloudflareStorageService, ConfigService],
+  controllers: [AppController, AuthController, AdminController, CategoriesController, DeveloperController],
+  providers: [AppService, AuthService, PrismaService, AdminService, CategoriesService, CloudflareStorageService, DeveloperService, ConfigService],
 })
-export class AppModule {}
+export class AppModule { }
