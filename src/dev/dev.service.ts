@@ -5,6 +5,7 @@ import { AuthService } from 'src/auth/auth.service'
 import { CloudflareStorageService } from 'src/cf-storage/cf-storage.service';
 import StreamZip from 'node-stream-zip';
 import { unlink } from 'fs/promises';
+import { UpdateAppDto } from './update-app.dto';
 
 const PUBLIC_ENDPOINT = process.env.R2_PUBLIC_ENDPOINT
 
@@ -54,6 +55,37 @@ export class DeveloperService {
       throw new ForbiddenException("You don't own this app.")
 
     return app
+  }
+
+  async updateApp(appId: number, updateData: UpdateAppDto, resolvedToken: string) {
+    const validationObject = await this.authService.validateToken(resolvedToken)
+    if (!validationObject)
+      throw new UnauthorizedException("Invalid token")
+
+    const app = await this.prisma.app.findUnique({
+      where: {
+        // 1. The App itself must be approved
+        id: appId
+      },
+      include: {
+        versions: true,
+        moderatedObject: true
+      }
+    });
+
+    if (app?.uploaderId !== validationObject.user.id)
+      throw new ForbiddenException("You don't own this app.")
+
+    await this.prisma.app.update({where:{id:appId}, data:
+      {
+        name: updateData.name,
+        description: updateData.description,
+        author: (!updateData.own_app ? updateData.author : validationObject.user.name),
+        categoryId: updateData.category
+      }
+    })
+
+    return { ok: true, message: "Successfully deleted the app.", status_code: 200 }
   }
 
   async deleteApp(appId: number, token: string): Promise<{ ok: true | false, message: string, status_code: 200 | 400 | 404 | 403 | 401 }> {

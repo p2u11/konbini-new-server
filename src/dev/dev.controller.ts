@@ -27,6 +27,7 @@ import { extname, join } from 'path';
 import { unlink, writeFile } from 'fs/promises';
 import { UploadResourceDto } from 'src/app/upload-resource.dto';
 import { existsSync, mkdirSync } from 'fs';
+import { UpdateAppDto } from './update-app.dto';
 
 const uploadPath = join(process.cwd(), 'uploads');
 if (!existsSync(uploadPath)) {
@@ -75,6 +76,12 @@ export class DeveloperController {
     async getApp(@Req() req: any, @Param('id', ParseIntPipe) appId: number, @Query('token') token?: string, @Headers('authorization') authorization?: string) {
         const resolvedToken = this.getToken(req, undefined, token, authorization);
         return await this.developerService.getApp(appId, resolvedToken);
+    }
+
+    @Post('app/:id')
+    async updateApp(@Req() req: any, @Param('id', ParseIntPipe) appId: number, @Body() updateData: UpdateAppDto, @Query('token') token?: string, @Headers('authorization') authorization?: string) {
+        const resolvedToken = this.getToken(req, updateData.token, token, authorization);
+        return await this.developerService.updateApp(appId, updateData, resolvedToken);
     }
 
     @Get('app/:id/delete')
